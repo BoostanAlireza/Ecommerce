@@ -1,0 +1,56 @@
+# Byte-compiled / compiled files
+*.pyc
+*.pyo
+__pycache__/
+
+# Environment variables and secrets
+.env
+
+# Virtual environment directory
+venv/
+env/
+.virtualenv/
+
+# Django stuff:
+*.log
+
+# Static files
+/static/
+# Media files
+/media/
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Node modules (if using frontend tools like npm)
+node_modules/
+
+# Pipenv files
+Pipfile.lock.bak
+*.bak
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+htmlcov/
+.coverage
+*.cover
+coverage.xml
+*.coveragerc
+
+# Test and debug output
+.pytest_cache/
+nosetests.xml
+tests.xml
+
+# Deployment-related files
+*.pid
+*.manifest
+*.spec
+
+# Migrations (optional)
+*/migrations/*.py
+!*/migrations/__init__.py
