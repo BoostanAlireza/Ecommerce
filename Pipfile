@@ -10,6 +10,9 @@ django-filter = "*"
 mysqlclient = "*"
 drf-nested-routers = "*"
 pillow = "*"
+django-debug-toolbar = "*"
+djoser = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 
