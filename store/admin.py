@@ -8,6 +8,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['unit_price']
     list_filter = ['category']
     list_per_page = 10
+    search_fields = ['title']
     prepopulated_fields = {
         'slug': ['title']
     }
@@ -50,3 +51,23 @@ class CustomerAdmin(admin.ModelAdmin):
 
     def email(self, customer):
         return customer.user.email
+    
+
+class CartItemInline(admin.TabularInline):
+    model = models.CartItem
+    fields = ['id', 'product', 'quantity']
+    extra = 0
+    min_num = 1
+
+@admin.register(models.Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ['id', 'datetime_created']
+    inlines = [CartItemInline]
+
+@admin.register(models.Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['id', 'product', 'name', 'datetime_created', 'status']
+    list_select_related = ['product']
+    list_editable = ['status']
+    autocomplete_fields = ['product']
+    list_per_page = 10
