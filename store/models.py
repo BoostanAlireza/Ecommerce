@@ -46,6 +46,11 @@ class Customer(models.Model):
         return f'{self.user.first_name} {self.user.last_name}'
 
 
+class ApprovedCommentManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=Comment.COMMENT_STATUS_APPROVED)
+
+
 class Comment(models.Model):
     COMMENT_STATUS_WAITING = 'w'
     COMMENT_STATUS_APPROVED = 'a'
@@ -60,6 +65,9 @@ class Comment(models.Model):
     body = models.TextField()
     datetime_created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=2, choices=COMMENT_STATUS_CHOICES, default=COMMENT_STATUS_WAITING)
+
+    objects = models.Manager()
+    approved = ApprovedCommentManager()
 
 
 class Cart(models.Model):
@@ -85,7 +93,7 @@ class Order(models.Model):
         (ORDER_STATUS_UNPAID, 'Unpaid'),
         (ORDER_STATUS_CANCELED, 'Canceled')
     ] 
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='orders')
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT, related_name='orders')
     datetime_created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
                     max_length=1,

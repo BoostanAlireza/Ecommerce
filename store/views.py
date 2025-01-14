@@ -1,4 +1,6 @@
+from tokenize import Comment
 from django.shortcuts import get_object_or_404
+from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action
@@ -7,10 +9,11 @@ from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyM
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from .filters import ProductFilter
-from .models import Cart, CartItem, Category, Customer, Product
+from .models import Cart, CartItem, Category, Customer, Order, OrderItem, Product, Comment, ProductImage
+from .signals import order_created
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAdminOrReadOnly
-from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, CustomerSerializer, ProductSerializer, CategorySerializer, UpdateCartItemSerializer
+from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializer, CommentSerializer, CustomerSerializer, OrderCreateSerializer, OrderForAdminSerializer, OrderSerializer, OrderUpdateSerializer, ProductImageSerializer, ProductSerializer, CategorySerializer, UpdateCartItemSerializer
 
 
 class ProductViewSet(ModelViewSet):
@@ -29,12 +32,31 @@ class ProductViewSet(ModelViewSet):
             return Response({'error': 'There are some order items including this one. Please remove them first.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class ProductImageViewSet(ModelViewSet):
+    serializer_class = ProductImageSerializer
+
+    def get_serializer_context(self):
+        return {'product_pk': self.kwargs['product_pk']}
+    
+    def get_queryset(self):
+        return ProductImage.objects.filter(product_id=self.kwargs['product_pk'])
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
 
+
+class CommentViewSet(ModelViewSet):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        product_pk = self.kwargs['product_pk']
+        return Comment.approved.filter(product_id=product_pk).all()
+    
+    def get_serializer_context(self):
+        return {'product_pk': self.kwargs['product_pk']}
 
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
@@ -79,3 +101,57 @@ class CartViewSet(CreateModelMixin,
     
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializer
+
+
+class OrderViewSet(ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete', 'options', 'head']
+
+    def get_permissions(self):
+        if self.request.method in ['PATCH', 'DELETE']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        queryset = Order.objects.prefetch_related(
+            Prefetch(
+                'items',
+                queryset=OrderItem.objects.select_related('product')
+            )
+        ).select_related('customer__user').all()
+
+        user = self.request.user
+
+        if user.is_staff:
+            return queryset
+        
+        return queryset.filter(customer__user_id=user.id)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return OrderCreateSerializer
+        
+        if self.request.method == 'PATCH':
+            return OrderUpdateSerializer
+        
+        if self.request.user.is_staff:
+            return OrderForAdminSerializer
+        return OrderSerializer
+    
+
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}
+
+    def create(self, request, *args, **kwargs):
+        create_order_serializer = OrderCreateSerializer(
+            data=request.data,
+            context={'user_id': self.request.user.id}
+            )
+        create_order_serializer.is_valid(raise_exception=True)
+        created_order = create_order_serializer.save()
+
+        order_created.send_robust(self.__class__, order=created_order)
+
+        serializer = OrderSerializer(created_order)
+        return Response(serializer.data)
+    
+

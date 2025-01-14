@@ -1,3 +1,7 @@
 from django.shortcuts import render
 
-# Create your views here.
+
+app_name='payment'
+
+def payment_process(request):
+    pass

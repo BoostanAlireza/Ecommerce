@@ -1,7 +1,8 @@
 
+from tokenize import Comment
 from rest_framework import serializers
 from django.db import transaction
-from .models import Cart, CartItem, Customer, Order, OrderItem, Product, Category
+from .models import Cart, CartItem, Customer, Order, OrderItem, Product, Category, Comment, ProductImage
 
 
 
@@ -16,10 +17,21 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'num_of_products']
 
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']
+
+    def create(self, validated_data):
+        product_id = self.context['product_pk']
+        return ProductImage.objects.create(product_id=product_id, **validated_data)
+
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
+
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'inventory', 'category', 'description']
+        fields = ['id', 'title', 'unit_price', 'inventory', 'category', 'description', 'images']
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -28,6 +40,15 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'birth_date']
         read_only_fields = ['user']
     
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'name', 'datetime_created', 'body']
+
+    def create(self, validated_data):
+        product_id = self.context['product_pk']
+        return Comment.objects.create(product_id=product_id, **validated_data)
 
 class CartProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -116,23 +137,32 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
     customer = OrderCustomerSerializer()
-    total_price = CartSerializer()
     
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'datetime_created', 'status', 'items', 'total_price']
+        fields = ['id', 'customer', 'datetime_created', 'status', 'items']
 
 class OrderUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['status']
 
+
+class OrderForAdminSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True)
+    customer = OrderCustomerSerializer()
+    
+    class Meta:
+        model = Order
+        fields = ['id', 'customer', 'datetime_created', 'status', 'items']
+
+
 class OrderCreateSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
 
     def validate_cart_id(self, cart_id):
         try:
-            if Cart.objects.prefetch_related('items').get(cart_id=cart_id).count() == 0:
+            if Cart.objects.prefetch_related('items').get(id=cart_id).items.count() == 0:
                 raise serializers.ValidationError('Your cart is empty. You need to add some products first.')
         except Cart.DoesNotExist:
             raise serializers.ValidationError('No cart with the given id')

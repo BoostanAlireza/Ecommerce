@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'djoser',
     'debug_toolbar',
     'store',
+    'likes',
+    'tags',
     'core',
 ]
 
