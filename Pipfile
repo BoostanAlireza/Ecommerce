@@ -13,6 +13,8 @@ pillow = "*"
 django-debug-toolbar = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
+django-environ = "*"
+gunicorn = "*"
 
 [dev-packages]
 
