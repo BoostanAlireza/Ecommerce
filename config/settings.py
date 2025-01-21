@@ -9,24 +9,35 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
+import environ
 from pathlib import Path
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    DJANGO_SECRET_KEY=(str, ''),
+    DJANGO_ZARINPAL_MERCHANT_ID=(str, ''),
+    MYSQL_DATABASE=(str, 'default_db_name'),
+    MYSQL_USER=(str, 'default_db_user'),
+    MYSQL_PASSWORD=(str, 'default_db_password'),
+    MYSQL_HOST=(str, 'db'),
+    MYSQL_PORT=(str, '3306'),
+)
 
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!_d2wsl%2br_u8veu3oq768+^bx!s@ywsb3uva8j-#!@kb*t=h'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get('DJANGO_DEBUG', default=True))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ('DJANGO_ALLOWED_HOSTS', '127.0.0.1').split(',')
 
 
 # Application definition
@@ -86,10 +97,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ecommerce',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': '09138338774',
+        'NAME': os.getenv('MYSQL_DATABASE'),
+        'USER': os.getenv('MYSQL_DATABASE'),
+        'PASSWORD': os.getenv('MYSQL_DATABASE'),
+        'HOST': os.getenv('DB_HOST', 'db'),
+        'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
 
@@ -142,6 +154,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.CustomeUser'
 
+PAYMENT_APP_URL = '/payment/process/'
+
 REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -161,3 +175,6 @@ DJOSER = {
         'current_user': 'core.serializers.UserSerializer'
     }
 }
+
+
+ZARINPAL_MERCHANT_ID = env("DJANGO_ZARINPAL_MERCHANT_ID")
