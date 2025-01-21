@@ -1,10 +1,24 @@
-version: '3.12'
-
+version: '3'
 services:
+  db:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - C:/Users/Allah/DockerVolumes/mysql:/var/run/mysql
+      - ./db:/var/lib/mysql
   web:
     build: .
-    command: python /code/manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
     volumes:
       - .:/code
-    ports:
-      - 8000:8000
+      - C:/Users/Allah/DockerVolumes/mysql:/run/mysql
+    depends_on:
+      - db
