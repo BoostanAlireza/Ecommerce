@@ -100,9 +100,14 @@ class Order(models.Model):
                     choices=ORDER_STATUS_CHOICES, 
                     default=ORDER_STATUS_UNPAID
                     )
+    zarinpal_authority = models.CharField(max_length=255, blank=True)
     
     def __str__(self):
         return f'Order id {self.id}'
+    
+
+    def get_total_price(self):
+        return sum(item.quantity * item.unit_price for item in self.items.all())
     
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='items')

@@ -1,9 +1,10 @@
-# from rest_framework.routers import DefaultRouter
-# from . import views
+from django.urls import path
+from .views import payment_process, payment_callback
 
-# router = DefaultRouter()
 
-# router.register('process', views.payment_process, basename='payment_process')
+app_name='payment'
 
-# urlpatterns = router.urls
-
+urlpatterns = [
+    path('process/', payment_process, name='payment_process'),
+    path('callback/', payment_callback, name='payment_callback'),
+]

@@ -1,5 +1,6 @@
 from tokenize import Comment
-from django.shortcuts import get_object_or_404
+from django.conf import settings
+from django.shortcuts import get_object_or_404, redirect
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -152,6 +153,19 @@ class OrderViewSet(ModelViewSet):
         order_created.send_robust(self.__class__, order=created_order)
 
         serializer = OrderSerializer(created_order)
-        return Response(serializer.data)
+
+        # The redirect function is used to generate a URL for the payment process, including the order_id as a parameter.
+        # payment_url is an instance of a HttpResponseRedirect object
+        payment_url = redirect('payment:payment_process', order_id=created_order.id)
+
+        return Response(
+            {
+                'order': serializer.data,
+                'redirect_url': payment_url.url #This is a property that contains the full URL to which the user should be redirected.
+            },
+            status=status.HTTP_201_CREATED
+            )
+    
+
     
 
