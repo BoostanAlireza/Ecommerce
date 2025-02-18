@@ -156,16 +156,18 @@ class OrderViewSet(ModelViewSet):
 
         # The redirect function is used to generate a URL for the payment process, including the order_id as a parameter.
         # payment_url is an instance of a HttpResponseRedirect object
-        payment_url = redirect('payment:payment_process', order_id=created_order.id)
+        payment_url = redirect('payment:payment_process_sandbox', order_id=created_order.id)
 
-        return Response(
-            {
-                'order': serializer.data,
-                'redirect_url': payment_url.url #This is a property that contains the full URL to which the user should be redirected.
-            },
-            status=status.HTTP_201_CREATED
-            )
+
+        return payment_url
+        # return Response(
+        #     {
+        #         'order': serializer.data,
+        #         'redirect_url': payment_url.url #This is a property that contains the full URL to which the user should be redirected.
+        #     },
+        #     status=status.HTTP_201_CREATED
+        #     )
     
-
+     
     
 

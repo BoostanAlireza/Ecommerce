@@ -9,35 +9,39 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import os
-import environ
+# import os
+# import environ
 from pathlib import Path
 from datetime import timedelta
+# from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(
-    DJANGO_SECRET_KEY=(str, ''),
-    DJANGO_ZARINPAL_MERCHANT_ID=(str, ''),
-    MYSQL_DATABASE=(str, 'default_db_name'),
-    MYSQL_USER=(str, 'default_db_user'),
-    MYSQL_PASSWORD=(str, 'default_db_password'),
-    MYSQL_HOST=(str, 'db'),
-    MYSQL_PORT=(str, '3306'),
-)
+# env = environ.Env(
+#     DJANGO_SECRET_KEY=(str, ''),
+#     DJANGO_ZARINPAL_MERCHANT_ID=(str, ''),
+#     MYSQL_DATABASE=(str, 'default_db_name'),
+#     MYSQL_USER=(str, 'default_db_user'),
+#     MYSQL_PASSWORD=(str, 'default_db_password'),
+#     MYSQL_HOST=(str, 'db'),
+#     MYSQL_PORT=(str, '3306'),
+# )
 
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = 'django-insecure-!_d2wsl % 2br_u8veu3oq768+^bx!s@ywsb3uva8j-  # !@kb*t=h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DJANGO_DEBUG', default=True))
+DEBUG = True
+# DEBUG = bool(os.environ.get('DJANGO_DEBUG', default=True))
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1').split(',')
+ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1').split(',')
 
 
 # Application definition
@@ -54,6 +58,7 @@ INSTALLED_APPS = [
     'djoser',
     'debug_toolbar',
     'store',
+    'emailbackend',
     'likes',
     'tags',
     'core',
@@ -97,13 +102,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQL_DATABASE'),
-        'USER': os.getenv('MYSQL_DATABASE'),
-        'PASSWORD': os.getenv('MYSQL_DATABASE'),
-        'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': os.getenv('DB_PORT', '3306'),
+        'NAME': 'ecommerce',
+        'HOST': 'localhost',
+        'USER': 'root',
+        'PASSWORD': '09138338774',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv('MYSQL_DATABASE'),
+#         'USER': os.getenv('MYSQL_USER'),
+#         'PASSWORD': os.getenv('MYSQL_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST', 'db'),
+#         'PORT': os.getenv('DB_PORT', '3306'),
+#     }
+# }
 
 
 # Password validation
@@ -157,7 +172,7 @@ AUTH_USER_MODEL = 'core.CustomeUser'
 PAYMENT_APP_URL = '/payment/process/'
 
 REST_FRAMEWORK = {
-
+    'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
@@ -166,7 +181,6 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT', ),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7)
 }
 
 DJOSER = {
@@ -177,4 +191,25 @@ DJOSER = {
 }
 
 
-ZARINPAL_MERCHANT_ID = env("DJANGO_ZARINPAL_MERCHANT_ID")
+ZARINPAL_MERCHANT_ID = '9901fb51-e1f4-482c-b12d-73d74c1fac14'
+# ZARINPAL_MERCHANT_ID = env("DJANGO_ZARINPAL_MERCHANT_ID")
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_PORT = 2525
+DEFAULT_FROM_EMAIL = 'from@boostanbuy.com'
+
+ADMINS = [
+    ('admin', 'from@boostanbuy.com')
+]
+
+CELERY_BROKER_URL = 'redis://localhost:6379/1'
+CELERY_BEAT_SCHEDULE = {
+    'notify_customers': {
+        'task': 'emailbackend.tasks.notify_customers',
+        'schedule': 5,
+        'args': ['Hello World'],
+    }
+}

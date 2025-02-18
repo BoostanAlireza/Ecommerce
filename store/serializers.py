@@ -91,7 +91,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'product', 'quantity', 'item_total_price']
 
     def get_item_total_price(self, cart_item):
-        if cart_item.product.discounts.exits():
+        if cart_item.product.discounts.exists():
             return (cart_item.quantity * cart_item.product.unit_price) * (1 - cart_item.product.discounts / 100)
         return cart_item.quantity * cart_item.product.unit_price
 

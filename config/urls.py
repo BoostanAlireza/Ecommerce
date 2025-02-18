@@ -28,5 +28,6 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     path('payment/', include('payment.urls')),
+    path('email/', include('emailbackend.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
 ]
