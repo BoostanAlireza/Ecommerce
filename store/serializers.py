@@ -142,6 +142,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'customer', 'datetime_created', 'status', 'items']
 
+
 class OrderUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
@@ -194,6 +195,7 @@ class OrderCreateSerializer(serializers.Serializer):
 
             OrderItem.objects.bulk_create(order_items)
 
-            Cart.objects.get(id=cart_id).delete()
+            # if order.status == 'p':
+            #     Cart.objects.get(id=cart_id).delete()
 
             return order

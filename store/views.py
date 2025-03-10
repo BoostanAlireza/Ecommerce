@@ -18,7 +18,7 @@ from .serializers import AddCartItemSerializer, CartItemSerializer, CartSerializ
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related('images').all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProductFilter
@@ -33,15 +33,17 @@ class ProductViewSet(ModelViewSet):
             return Response({'error': 'There are some order items including this one. Please remove them first.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
+
+
 class ProductImageViewSet(ModelViewSet):
     serializer_class = ProductImageSerializer
 
     def get_serializer_context(self):
         return {'product_pk': self.kwargs['product_pk']}
-    
+
     def get_queryset(self):
         return ProductImage.objects.filter(product_id=self.kwargs['product_pk'])
+
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
@@ -55,9 +57,10 @@ class CommentViewSet(ModelViewSet):
     def get_queryset(self):
         product_pk = self.kwargs['product_pk']
         return Comment.approved.filter(product_id=product_pk).all()
-    
+
     def get_serializer_context(self):
         return {'product_pk': self.kwargs['product_pk']}
+
 
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
@@ -77,31 +80,33 @@ class CustomerViewSet(ModelViewSet):
             serializer.save()
             return Response(serializer.data)
 
+
 class CartItemViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         cart_pk = self.kwargs['cart_pk']
         return CartItem.objects.select_related('product').filter(cart_id=cart_pk).all()
-    
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return AddCartItemSerializer
         elif self.request.method == 'PATCH':
             return UpdateCartItemSerializer
         return CartItemSerializer
-    
+
     def get_serializer_context(self):
         return {'cart_pk': self.kwargs['cart_pk']}
-    
+
 
 class CartViewSet(CreateModelMixin,
                   RetrieveModelMixin,
                   DestroyModelMixin,
                   GenericViewSet):
-    
+
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class OrderViewSet(ModelViewSet):
@@ -124,20 +129,19 @@ class OrderViewSet(ModelViewSet):
 
         if user.is_staff:
             return queryset
-        
+
         return queryset.filter(customer__user_id=user.id)
-    
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return OrderCreateSerializer
-        
+
         if self.request.method == 'PATCH':
             return OrderUpdateSerializer
-        
+
         if self.request.user.is_staff:
             return OrderForAdminSerializer
         return OrderSerializer
-    
 
     def get_serializer_context(self):
         return {'user_id': self.request.user.id}
@@ -146,7 +150,7 @@ class OrderViewSet(ModelViewSet):
         create_order_serializer = OrderCreateSerializer(
             data=request.data,
             context={'user_id': self.request.user.id}
-            )
+        )
         create_order_serializer.is_valid(raise_exception=True)
         created_order = create_order_serializer.save()
 
@@ -156,18 +160,14 @@ class OrderViewSet(ModelViewSet):
 
         # The redirect function is used to generate a URL for the payment process, including the order_id as a parameter.
         # payment_url is an instance of a HttpResponseRedirect object
-        payment_url = redirect('payment:payment_process_sandbox', order_id=created_order.id)
+        payment_url = redirect(
+            'payment:payment_process_sandbox', order_id=created_order.id)
 
-
-        return payment_url
-        # return Response(
-        #     {
-        #         'order': serializer.data,
-        #         'redirect_url': payment_url.url #This is a property that contains the full URL to which the user should be redirected.
-        #     },
-        #     status=status.HTTP_201_CREATED
-        #     )
-    
-     
-    
-
+        # return payment_url
+        return Response(
+            {
+                'order': serializer.data,
+                'redirect_url': payment_url.url #This is a property that contains the full URL to which the user should be redirected.
+            },
+            status=status.HTTP_201_CREATED
+            )

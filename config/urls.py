@@ -23,6 +23,7 @@ admin.site.index_title = 'Special Access'
 
 
 urlpatterns = [
+    path('', include('core.urls')),
     path('admin/', admin.site.urls),
     path('store/', include('store.urls')),
     path('auth/', include('djoser.urls')),
@@ -30,4 +31,5 @@ urlpatterns = [
     path('payment/', include('payment.urls')),
     path('email/', include('emailbackend.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
+    path('silk/', include('silk.urls', namespace='silk')),
 ]

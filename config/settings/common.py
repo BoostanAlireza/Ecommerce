@@ -9,14 +9,14 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-# import os
-# import environ
+import os
+import environ
 from pathlib import Path
 from datetime import timedelta
 # from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # env = environ.Env(
 #     DJANGO_SECRET_KEY=(str, ''),
@@ -33,14 +33,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!_d2wsl % 2br_u8veu3oq768+^bx!s@ywsb3uva8j-  # !@kb*t=h'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 # DEBUG = bool(os.environ.get('DJANGO_DEBUG', default=True))
 
-ALLOWED_HOSTS = []
 # ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1').split(',')
 
 
@@ -56,6 +52,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'djoser',
+    'silk',
     'debug_toolbar',
     'store',
     'emailbackend',
@@ -67,6 +64,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,6 +73,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# if DEBUG:
+#     MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
+
+    
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -96,18 +98,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ecommerce',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': '09138338774',
-    }
-}
 
 # DATABASES = {
 #     'default': {
@@ -159,7 +149,10 @@ INTERNAL_IPS = [
 
 STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
-
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
@@ -211,5 +204,32 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'emailbackend.tasks.notify_customers',
         'schedule': 5,
         'args': ['Hello World'],
+    }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler'
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'general.log',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console', 'file'],
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} ({levelname}) - {name} - {message}',
+            'style': '{'
+        }
     }
 }
