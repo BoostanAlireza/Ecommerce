@@ -1,5 +1,7 @@
 import requests
+import jwt
 import json
+from rest_framework import status
 from decimal import Decimal
 from django.http import HttpResponse
 from django.conf import settings
@@ -104,10 +106,20 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 
 #This implementation is solely dedicated to testing
-def payment_process_sandbox(request, order_id):
-    # Get order id from JSON response sent by store/views.py/OrderViewSet
-    # order_id = request.get('order_id')
-    # Get order object
+def payment_process_sandbox(request):
+    token = request.GET.get('token')
+
+    if not token:
+        return HttpResponse('Unauthorized', status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
+        order_id = payload['order_id']
+    except jwt.ExpiredSignatureError:
+        return HttpResponse('Token has expired', status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.InvalidTokenError:
+        return HttpResponse('Invalid token', status=status.HTTP_401_UNAUTHORIZED)
+    
     order = get_object_or_404(Order, id=order_id)
 
     total_price_in_toman = order.get_total_price()

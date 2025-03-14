@@ -1,5 +1,8 @@
-from tokenize import Comment
+import jwt
+import datetime
+from django.urls import reverse
 from django.conf import settings
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
@@ -156,18 +159,26 @@ class OrderViewSet(ModelViewSet):
 
         order_created.send_robust(self.__class__, order=created_order)
 
+        expiration_time = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=15)
         serializer = OrderSerializer(created_order)
+
+        payload = {
+            'order_id': created_order.id,
+            'exp': expiration_time.timestamp()
+        }
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
 
         # The redirect function is used to generate a URL for the payment process, including the order_id as a parameter.
         # payment_url is an instance of a HttpResponseRedirect object
-        payment_url = redirect(
-            'payment:payment_process_sandbox', order_id=created_order.id)
-
-        # return payment_url
-        return Response(
-            {
-                'order': serializer.data,
-                'redirect_url': payment_url.url #This is a property that contains the full URL to which the user should be redirected.
-            },
-            status=status.HTTP_201_CREATED
+        payment_url = request.build_absolute_uri(
+            reverse('payment:payment_process_sandbox') + f'?token={token}'
             )
+
+        return JsonResponse({'payment_url': payment_url}, status=status.HTTP_201_CREATED)
+        # return Response(
+        #     {
+        #         'order': serializer.data,
+        #         'redirect_url': payment_url.url #This is a property that contains the full URL to which the user should be redirected.
+        #     },
+        #     status=status.HTTP_201_CREATED
+        #     )
