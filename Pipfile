@@ -41,6 +41,10 @@ flower = "*"
 whitenoise = "*"
 gunicorn = "*"
 waitress = "*"
+django-redis = "*"
+django-silk = "*"
+drf-yasg = "*"
+drf-spectacular = "*"
 
 [dev-packages]
 pytest = "*"

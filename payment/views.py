@@ -107,19 +107,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 #This implementation is solely dedicated to testing
 def payment_process_sandbox(request):
-    token = request.GET.get('token')
+    order_id = request.GET.get('order_id')
 
-    if not token:
-        return HttpResponse('Unauthorized', status=status.HTTP_401_UNAUTHORIZED)
-    
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
-        order_id = payload['order_id']
-    except jwt.ExpiredSignatureError:
-        return HttpResponse('Token has expired', status=status.HTTP_401_UNAUTHORIZED)
-    except jwt.InvalidTokenError:
-        return HttpResponse('Invalid token', status=status.HTTP_401_UNAUTHORIZED)
-    
     order = get_object_or_404(Order, id=order_id)
 
     total_price_in_toman = order.get_total_price()
@@ -134,7 +123,7 @@ def payment_process_sandbox(request):
 
     request_data = {
         'merchant_id': 'c39a449c-1a95-403e-9c2a-95fd13632651',
-        'amount': float(total_price_in_rial),
+        'amount': int(total_price_in_rial),
         'description': f'#{order.id}: {order.customer.user.first_name} {order.customer.user.last_name}',
         'callback_url': request.build_absolute_uri(reverse('payment:payment_callback_sandbox')),
     }
@@ -144,9 +133,11 @@ def payment_process_sandbox(request):
         data=json.dumps(request_data),
         headers=request_header,
     )
-
-    data = res.json()['data']
+    print(res)
+    data = res.json()
+    print(data)
     authority = data['authority']
+    print(authority)
     order.zarinpal_authority = authority
     order.save()
 
