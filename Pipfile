@@ -45,6 +45,8 @@ django-redis = "*"
 django-silk = "*"
 drf-yasg = "*"
 drf-spectacular = "*"
+django-cors-headers = "*"
+az-iranian-bank-gateways = "*"
 
 [dev-packages]
 pytest = "*"
@@ -55,4 +57,4 @@ locust = "*"
 django-silk = "*"
 
 [requires]
-python_version = "3.13"
+python_version = "3.12"

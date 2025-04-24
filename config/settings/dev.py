@@ -3,7 +3,7 @@ from django.urls import path, include
 from . common import *
 
 
-SECRET_KEY = 'django-insecure-!_d2wsl % 2br_u8veu3oq768+^bx!s@ywsb3uva8j-  # !@kb*t=h'
+SECRET_KEY = env('SECRET_KEY')
 
 
 DEBUG = True
@@ -14,12 +14,17 @@ if 'silk' in INSTALLED_APPS:
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ecommerce',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': '09138338774',
-    }
+    'default': env.db_url()
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'ecommerce',
+#         'HOST': 'localhost',
+#         'USER': 'root',
+#         'PASSWORD': '09138338774',
+#     }
+# }
 

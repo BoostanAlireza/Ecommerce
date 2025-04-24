@@ -1,9 +1,6 @@
-import jwt
-import datetime
 from django.urls import reverse
-from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -167,5 +164,7 @@ class OrderViewSet(ModelViewSet):
             reverse('payment:payment_process_sandbox') + f'?order_id={created_order.id}'
             )
 
-        return redirect(payment_url)
-        # return JsonResponse({'payment_url': payment_url}, status=status.HTTP_201_CREATED)
+
+        return JsonResponse({'payment_url': payment_url}, status=status.HTTP_201_CREATED)
+
+
