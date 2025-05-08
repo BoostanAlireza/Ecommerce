@@ -1,19 +1,9 @@
 
 import os
-import environ
 from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-env = environ.Env(DEBUG=(bool, False))
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
-
-
-DEBUG = env('DEBUG')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
-
-
 
 
 INSTALLED_APPS = [
@@ -51,7 +41,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-    
+# if DEBUG:
+#     MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
+
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -105,12 +98,10 @@ INTERNAL_IPS = [
 
 
 STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -140,18 +131,11 @@ DJOSER = {
 
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp4dev'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-EMAIL_PORT = 2525
-DEFAULT_FROM_EMAIL = 'from@boostanbuy.com'
 
 ADMINS = [
     ('admin', 'from@boostanbuy.com')
 ]
 
-CELERY_BROKER_URL = 'redis://redis:6379/1'
 CELERY_BEAT_SCHEDULE = {
     'notify_customers': {
         'task': 'emailbackend.tasks.notify_customers',
@@ -188,15 +172,6 @@ LOGGING = {
 }
 
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://redis:6379/2",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
 
 
 SWAGGER_SETTINGS = {
@@ -214,6 +189,3 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Ecommerce Website API',
 }
 
-DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': lambda request: True
-}

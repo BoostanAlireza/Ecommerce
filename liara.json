@@ -1,0 +1,21 @@
+{
+    "platform": "django",
+    "django": {
+        "pythonVersion": "3.12",
+        "collectStatic": false,
+        "compileMessages": false,
+        "modifySettings": true,
+        "timezone": "Asia/Tehran"
+    },
+    "app": "boostanshop",
+    "disks": [
+        {
+            "name": "static",
+            "mountTo": "static"
+        },
+        {
+            "name": "media",
+            "mountTo": "media"
+        }
+    ]
+}
