@@ -1,10 +1,8 @@
-
 import os
 from pathlib import Path
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,8 +17,6 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_yasg',
     'djoser',
-    'silk',
-    'debug_toolbar',
     'store',
     'emailbackend',
     'likes',
@@ -29,9 +25,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -40,10 +35,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-# if DEBUG:
-#     MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
-
 
 ROOT_URLCONF = 'config.urls'
 
@@ -65,49 +56,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
-
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
-
 USE_TZ = True
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
-
-
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
-
-
+INTERNAL_IPS = ['127.0.0.1']
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 AUTH_USER_MODEL = 'core.CustomeUser'
-
 
 REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
@@ -129,13 +90,6 @@ DJOSER = {
     }
 }
 
-
-
-
-ADMINS = [
-    ('admin', 'from@boostanbuy.com')
-]
-
 CELERY_BEAT_SCHEDULE = {
     'notify_customers': {
         'task': 'emailbackend.tasks.notify_customers',
@@ -148,18 +102,11 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler'
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': 'general.log',
-            'formatter': 'verbose'
-        }
+        'console': {'class': 'logging.StreamHandler'},
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
         }
     },
@@ -170,9 +117,6 @@ LOGGING = {
         }
     }
 }
-
-
-
 
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
@@ -188,4 +132,3 @@ SWAGGER_SETTINGS = {
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Ecommerce Website API',
 }
-

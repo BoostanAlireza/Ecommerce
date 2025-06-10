@@ -1,21 +1,25 @@
 {
-    "platform": "django",
-    "django": {
-        "pythonVersion": "3.12",
-        "collectStatic": false,
-        "compileMessages": false,
-        "modifySettings": true,
-        "timezone": "Asia/Tehran"
+  "platform": "django",
+  "app": "boostanshop",
+  "django": {
+    "pythonVersion": "3.12",
+    "collectStatic": true,
+    "compileMessages": false,
+    "modifySettings": true,
+    "timezone": "Asia/Tehran"
+  },
+  "djangoSettingsModule": "config.settings.prod",
+  "disks": [
+    {
+      "name": "static",
+      "mountTo": "static"
     },
-    "app": "boostanshop",
-    "disks": [
-        {
-            "name": "static",
-            "mountTo": "static"
-        },
-        {
-            "name": "media",
-            "mountTo": "media"
-        }
-    ]
+    {
+      "name": "media",
+      "mountTo": "media"
+    }
+  ],
+  "env": {
+    "LIARA_ENV": "production"
+  }
 }

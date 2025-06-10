@@ -100,9 +100,6 @@ class Order(models.Model):
                     choices=ORDER_STATUS_CHOICES, 
                     default=ORDER_STATUS_UNPAID
                     )
-    zarinpal_authority = models.CharField(max_length=255, blank=True)
-    zarinpal_ref_id = models.CharField(max_length=255, blank=True)
-    zarinpal_data = models.TextField(blank=True)
     
     def __str__(self):
         return f'Order id {self.id}'

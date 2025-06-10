@@ -1,56 +1,22 @@
-# Byte-compiled / compiled files
-*.pyc
-*.pyo
-__pycache__/
-
-# Environment variables and secrets
-.env
-
-# Virtual environment directory
-venv/
-env/
-.virtualenv/
-
-# Django stuff:
+pycache/
+*.py[cod]
+*.sqlite3
 *.log
+*.pot
+*.pyc
 
-# Static files
+.env
+.env.*
+!.env.production
+
 /static/
-# Media files
 /media/
+/node_modules/
 
-# IDE specific files
-.vscode/
+db.sqlite3
+venv/
+
 .idea/
+.vscode/
 
-# Node modules (if using frontend tools like npm)
-node_modules/
-
-# Pipenv files
-Pipfile.lock.bak
 *.bak
-
-# OS-specific files
-.DS_Store
-Thumbs.db
-
-# Coverage reports
-htmlcov/
-.coverage
-*.cover
-coverage.xml
-*.coveragerc
-
-# Test and debug output
-.pytest_cache/
-nosetests.xml
-tests.xml
-
-# Deployment-related files
-*.pid
-*.manifest
-*.spec
-
-# Migrations (optional)
-*/migrations/*.py
-!*/migrations/__init__.py

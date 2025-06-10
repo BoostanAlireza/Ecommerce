@@ -1,4 +1,3 @@
-
 from tokenize import Comment
 from rest_framework import serializers
 from django.db import transaction
@@ -106,7 +105,7 @@ class CartSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def get_total_price(self, cart):
-        return sum([item.quantity * item.product.unit_price for item in cart.items.all()])
+        return sum(item.quantity * item.product.unit_price for item in cart.items.select_related('product').all())
     
 
 class OrderCustomerSerializer(serializers.ModelSerializer):

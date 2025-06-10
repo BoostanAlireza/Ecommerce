@@ -1,19 +1,43 @@
-import os
-from . common import *
+from .common import *
+import environ
 
-SECRET_KEY = os.environ['SECRET_KEY']
+env = environ.Env()
 
-DEBUG = False
+if os.environ.get("LIARA_ENV") == "production":
+    environ.Env.read_env(".env.production")
+else:
+    environ.Env.read_env()
 
-ALLOWED_HOSTS = ['boostanbuy.liara.run']
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env.bool("DEBUG", default=False)
 
-DATABASE = {
+DATABASES = {
     'default': {
-        'ENGIN': 'django.db.backends.mysql',
-        'NAME': os.environ['DB_NAME'],
-        'HOST': os.environ['DB_HOST'],
-        'USER': os.environ['DB_USER'],
-        'PASSWORD': os.environ['DB_PASSWORD'],
-        'PORT': os.environ['DB_PORT']
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
     }
 }
+
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+EMAIL_PORT = env.int('EMAIL_PORT')
+
+CELERY_BROKER_URL = env('CELERY_BROKER_URL')
+REDIS_CACHE_URL = env('REDIS_CACHE_URL')
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_CACHE_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')

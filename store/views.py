@@ -157,14 +157,4 @@ class OrderViewSet(ModelViewSet):
         order_created.send_robust(self.__class__, order=created_order)
 
         serializer = OrderSerializer(created_order)
-
-        # The redirect function is used to generate a URL for the payment process, including the order_id as a parameter.
-        # payment_url is an instance of a HttpResponseRedirect object
-        payment_url = request.build_absolute_uri(
-            reverse('payment:payment_process_sandbox') + f'?order_id={created_order.id}'
-            )
-
-
-        return JsonResponse({'payment_url': payment_url}, status=status.HTTP_201_CREATED)
-
-
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
