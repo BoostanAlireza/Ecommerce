@@ -3,11 +3,6 @@ import environ
 
 env = environ.Env()
 
-if os.environ.get("LIARA_ENV") == "production":
-    environ.Env.read_env(".env.production")
-else:
-    environ.Env.read_env()
-
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env.bool("DEBUG", default=False)
 

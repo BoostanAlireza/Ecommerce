@@ -20,6 +20,20 @@
     }
   ],
   "env": {
-    "LIARA_ENV": "production"
+    "LIARA_ENV": "production",
+    "SECRET_KEY": "4ee6a01b28f296cb6fc4e72ee6a46b8c8e0eefdfbfd0efcdd49a262aea21393e32e079a0c80b5459330c3d0c87cf3c94df55",
+    "DEBUG": "False",
+    "DB_NAME": "boostanshop_db",
+    "DB_HOST": "mysql",
+    "DB_PORT": "3306",
+    "DB_USER": "root",
+    "DB_PASSWORD": "bvUCtuV7Xs28wbKb1WzVfjrp",
+    "EMAIL_HOST": "smtp.mailtrap.io",
+    "EMAIL_HOST_USER": "your_email_user",
+    "EMAIL_HOST_PASSWORD": "your_email_password",
+    "EMAIL_PORT": "2525",
+    "CELERY_BROKER_URL": "redis://localhost:6379/0",
+    "REDIS_CACHE_URL": "redis://localhost:6379/1",
+    "ALLOWED_HOSTS": "boostanshop.liara.run"
   }
 }
