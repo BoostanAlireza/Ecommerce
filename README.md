@@ -215,14 +215,11 @@ ecommerce/
 
 ## License
 
-This project is licensed under the BSD License.
+This project is licensed under the MIT License.
 
 ---
 
 ## Contact
 
-For questions or support, please open an issue or contact the maintainer at `contact@myapi.local`.
+For questions or support, please open an issue or contact the maintainer at `boostanalireza1999@gmail.com`.
 
----
-
-**Happy coding!** 
